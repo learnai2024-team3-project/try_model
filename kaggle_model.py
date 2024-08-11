@@ -15,10 +15,11 @@ prevTime = 0
 
 SRC_PATH = os.path.dirname(os.path.abspath(__file__))
 
-BASE_PATH = "1st"
+BASE_PATH = "asl"
 INTEFFACE_ARGS_PATH = SRC_PATH + "/Model/" + BASE_PATH + "/inference_args.json"
 MODEL_PATH = SRC_PATH + "/Model/" + BASE_PATH + "/model.tflite"
 CHAR_MAP_PATH = SRC_PATH + "/Model/character_to_prediction_index.json"
+TEST_VIDEO_PATH = SRC_PATH + "/Test/"
 
 # 读取 JSON 文件中的特征
 with open(INTEFFACE_ARGS_PATH, 'r') as f:
@@ -54,6 +55,7 @@ prediction_fn = interpreter.get_signature_runner(REQUIRED_SIGNATURE)
 print(len(selected_columns))  # 应该输出390
 res_point_size = len(selected_columns)
 
+# cap = cv2.VideoCapture(TEST_VIDEO_PATH + "asl.mp4")
 cap = cv2.VideoCapture(0)
 prediction_str = ""
 
@@ -88,10 +90,6 @@ with mp_face_mesh.FaceMesh(max_num_faces=1) as face_mesh, \
      mp_hands.Hands(static_image_mode=False, min_detection_confidence=0.5, min_tracking_confidence=0.5) as hands, \
      mp_pose.Pose(static_image_mode=False, min_detection_confidence=0.5, min_tracking_confidence=0.5) as pose:
     
-    column_lut = []
-    for column in selected_columns:
-        column_lut.append([column, 0])
-    
     while cap.isOpened():
         success, image = cap.read()
         if not success:
@@ -105,6 +103,10 @@ with mp_face_mesh.FaceMesh(max_num_faces=1) as face_mesh, \
         pose_results = pose.process(image)
 
         res_point = []
+        
+        column_lut = []
+        for column in selected_columns:
+            column_lut.append([column, np.nan])
 
         # 填充脸部数据
         if face_results.multi_face_landmarks:
@@ -184,7 +186,7 @@ with mp_face_mesh.FaceMesh(max_num_faces=1) as face_mesh, \
         fps = 1 / (currTime - prevTime)
         prevTime = currTime
 
-        cv2.putText(image, f"Prediction: {prediction_str}", (50, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+        cv2.putText(image, f"Prediction: {prediction_str}", (50, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 10, 255), 2)
         cv2.imshow('MediaPipe Hands, Pose, and Face', image)
         if cv2.waitKey(1) & 0xFF == 27:
             break
