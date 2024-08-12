@@ -58,7 +58,7 @@ prediction_fn = interpreter.get_signature_runner(REQUIRED_SIGNATURE)
 print(len(selected_columns))  # 应该输出390
 res_point_size = len(selected_columns)
 
-cap = cv2.VideoCapture(TEST_VIDEO_PATH + "alphabet.mp4")
+cap = cv2.VideoCapture(TEST_VIDEO_PATH + "asl.mp4")
 # cap = cv2.VideoCapture(0)
 prediction_str = ""
 
@@ -204,9 +204,12 @@ with mp_face_mesh.FaceMesh(max_num_faces=1) as face_mesh, \
 
         if top_predictions != None:
             for i, (pred, prob) in enumerate(top_predictions):
-                cv2.putText(image, f"Top {i+1}: {pred} - {prob:.2f}", (50, 100 + i * 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
-                
-        cv2.putText(image, f"Prediction: {prediction_str} {len(frames)}", (50, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 10, 255), 2)
+                pred = pred.upper()
+                cv2.putText(image, f"Top {i+1}: {pred:2} - {prob:.2f}", (50, 100 + i * 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 0), 8)
+                cv2.putText(image, f"Top {i+1}: {pred:2} - {prob:.2f}", (50, 100 + i * 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
+        
+        cv2.putText(image, f"Input frames: {len(frames)}", (50, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 0), 8)        
+        cv2.putText(image, f"Input frames: {len(frames)}", (50, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
         
         cv2.imshow('MediaPipe Hands, Pose, and Face', image)
         if cv2.waitKey(1) & 0xFF == 27:
